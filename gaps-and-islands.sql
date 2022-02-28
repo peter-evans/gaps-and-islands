@@ -54,7 +54,7 @@ range_island_ids AS (
       OVER (PARTITION BY set_id ORDER BY range_islands.from_id ASC) AS island_id
   FROM range_islands
 ),
-compacted_ranges AS (
+merged_ranges AS (
   SELECT
     set_id,
     MIN(from_id) AS from_id,
@@ -72,11 +72,11 @@ delete_gaps AS (
   RETURNING *
 )
 UPDATE ranges SET
-  to_id = compacted_ranges.to_id
-FROM compacted_ranges
+  to_id = merged_ranges.to_id
+FROM merged_ranges
 WHERE
-  ranges.set_id = compacted_ranges.set_id AND
-  ranges.from_id = compacted_ranges.from_id AND
+  ranges.set_id = merged_ranges.set_id AND
+  ranges.from_id = merged_ranges.from_id AND
   -- This condition ensures delete_gaps completes before executing the update.
   (SELECT COUNT(*) FROM delete_gaps) >= 0;
 
