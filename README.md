@@ -4,14 +4,14 @@ For part of a system I was designing and implementing, I needed a solution to me
 The approach I took was based on solutions to the [gaps and islands](https://www.red-gate.com/simple-talk/databases/sql-server/t-sql-programming-sql-server/gaps-islands-sql-server-data/) problem.
 
 There are many ways this could be solved if the rows are fetched and processed outside of PostgreSQL.
-However, I specifically wanted to do this in pure SQL so that the operation could safely modify rows in a transaction, and avoid race conditions with concurrent operations.
+However, I specifically wanted to do this in pure SQL so that the operation could safely modify rows in a transaction, and avoid race conditions with concurrent processes.
 
-Unlike many of the more straightforward examples I found for solutions to the gaps and islands problem, my particular use case required the following.
-- Find the gaps and islands between rows containing a numerical range, expressed as two columns, `from_id` and `to_id`.
+Unlike many of the more straightforward examples I found, my particular use case required the following.
+- Find gaps and islands between rows containing a numerical range, expressed as two columns, `from_id` and `to_id`.
 - Merge the islands (rows of contiguous ranges) into a single row.
 - Update the table in-place with the merged islands.
 
-### Solution
+## Solution
 
 This is the table we'll use for the following examples.
 `set_id` is a set of ranges, and the merge operation targets a specific set.
@@ -29,10 +29,10 @@ CREATE TABLE ranges (
 );
 ```
 
-#### Identify islands
+### Identify islands
 
 Identifying islands is done in two steps.
-The first step adds a column which marks the start of an island.
+The first step adds the column `island_start`, marking the start of an island.
 
 ```sql
 SELECT
@@ -49,7 +49,7 @@ WHERE set_id = 1;
 
 The query uses the `LAG` [window function](https://www.postgresql.org/docs/current/functions-window.html) to evaluate the previous row, and determine if the current row is the start of an island or not. Since the first row has no previous row, we must check for `NULL` to handle that case.
 
-Here is an example result, showing the start of four islands has been marked.
+Here is an example result, showing the start of four islands have been marked.
 
 | set_id | from_id | to_id | island_start |
 | ------ | ------- | ----- | ------------ |
@@ -100,7 +100,7 @@ Here is an example result, showing four islands with their unique ID.
 |      1 |      55 |    60 |            1 |         4 |
 |      1 |      61 |    80 |            0 |         4 |
 
-#### Merge islands
+### Merge islands
 
 Once each row has an ID, identifying what island it belongs to, the next step is straightforward.
 We group by `island_id` and find the `MIN` and `MAX` of the contiguous ranges.
@@ -142,7 +142,7 @@ Here is the result, showing the merged islands.
 |      1 |      45 |    50 |
 |      1 |      55 |    80 |
 
-#### Update islands
+### Update islands
 
 Updating the table with the merged rows takes place in two steps.
 Firstly, any rows that were identified as not being the start of an island can be deleted.
@@ -156,7 +156,7 @@ WHERE
   range_islands.island_start = 0
 ```
 
-Secondly, the remaining rows, representing the islands, are updated with the `to_id` of the merged islands.
+Secondly, the remaining rows representing the islands are updated with the `to_id` of the merged islands.
 
 ```sql
 UPDATE ranges SET
