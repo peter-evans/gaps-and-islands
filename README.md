@@ -1,6 +1,6 @@
 # Gaps and islands: Merging contiguous ranges
 
-For part of a system I was designing and implementing, I needed a solution to merge rows of contiguous ranges in a PostgreSQL table.
+I recently needed a solution to merge rows of contiguous ranges in a PostgreSQL table.
 The approach I took was based on solutions to the [gaps and islands](https://www.red-gate.com/simple-talk/databases/sql-server/t-sql-programming-sql-server/gaps-islands-sql-server-data/) problem.
 
 There are many ways this could be solved if the rows are fetched and processed outside of PostgreSQL.
@@ -62,7 +62,7 @@ Here is an example result, showing the start of four islands have been marked.
 |      1 |      55 |    60 |            1 |
 |      1 |      61 |    80 |            0 |
 
-The next step is to give each island a unique ID, so that we can identify what island each row belongs to.
+The next step is to give each island a unique ID, so that we can identify which island each row belongs to.
 
 ```sql
 WITH range_islands AS (
@@ -85,9 +85,9 @@ FROM range_islands;
 ```
 
 The query uses `SUM` as a windowed function over the `island_start` column in the result of our previous query.
-This creates a rolling sum, where each island start increases the sum by one, giving us a unique ID.
+This creates a rolling sum, where each island start row increases the sum by one, giving us a unique ID.
 
-Here is an example result, showing four islands with their unique ID.
+Here is an example result, showing four islands with their unique IDs.
 
 | set_id | from_id | to_id | island_start | island_id |
 | ------ | ------- | ----- | ------------ | --------- |
@@ -133,7 +133,7 @@ FROM range_island_ids
 GROUP BY set_id, island_id;
 ```
 
-Here is the result, showing the merged islands.
+Here is the result, showing the four merged islands.
 
 | set_id | from_id | to_id |
 | ------ | ------- | ----- |
@@ -156,7 +156,7 @@ WHERE
   range_islands.island_start = 0
 ```
 
-Secondly, the remaining rows representing the islands are updated with the `to_id` of the merged islands.
+Secondly, the remaining rows representing the islands are updated with the `to_id` of the merged ranges.
 
 ```sql
 UPDATE ranges SET
