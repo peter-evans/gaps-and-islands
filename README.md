@@ -38,7 +38,7 @@ The first step adds the column `island_start`, marking the start of an island.
 SELECT
   *,
   CASE from_id - LAG(ranges.to_id)
-      OVER (PARTITION BY set_id ORDER BY ranges.from_id ASC)
+      OVER (ORDER BY ranges.from_id ASC)
     WHEN NULL THEN 1
     WHEN 1 THEN 0
     ELSE 1
@@ -69,7 +69,7 @@ WITH range_islands AS (
   SELECT
     *,
     CASE from_id - LAG(ranges.to_id)
-        OVER (PARTITION BY set_id ORDER BY ranges.from_id ASC)
+        OVER (ORDER BY ranges.from_id ASC)
       WHEN NULL THEN 1
       WHEN 1 THEN 0
       ELSE 1
@@ -80,7 +80,7 @@ WITH range_islands AS (
 SELECT
   *,
   SUM(range_islands.island_start)
-    OVER (PARTITION BY set_id ORDER BY range_islands.from_id ASC) AS island_id
+    OVER (ORDER BY range_islands.from_id ASC) AS island_id
 FROM range_islands;
 ```
 
@@ -110,7 +110,7 @@ WITH range_islands AS (
   SELECT
     *,
     CASE from_id - LAG(ranges.to_id)
-        OVER (PARTITION BY set_id ORDER BY ranges.from_id ASC)
+        OVER (ORDER BY ranges.from_id ASC)
       WHEN NULL THEN 1
       WHEN 1 THEN 0
       ELSE 1
@@ -122,7 +122,7 @@ range_island_ids AS (
   SELECT
     *,
     SUM(range_islands.island_start)
-      OVER (PARTITION BY set_id ORDER BY range_islands.from_id ASC) AS island_id
+      OVER (ORDER BY range_islands.from_id ASC) AS island_id
   FROM range_islands
 )
 SELECT
