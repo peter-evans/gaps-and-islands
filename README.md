@@ -168,4 +168,4 @@ WHERE
 
 That completes all the steps necessary to execute a merge of contiguous ranges in a single PostgreSQL transaction.
 See [gaps-and-islands.sql](gaps-and-islands.sql) for a complete example.
-You can also check out the example in [dbfiddle](https://dbfiddle.uk/?rdbms=postgres_12&fiddle=fa9a1bee0c4a5293ccc0effab4bb0ef7).
+You can also check out the example in [dbfiddle](https://dbfiddle.uk/?rdbms=postgres_12&fiddle=cd6bae615d8caa90eff0fd275e292cb5).
