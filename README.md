@@ -3,13 +3,12 @@
 I recently needed a solution to merge rows of contiguous ranges in a PostgreSQL table.
 The approach I took was based on solutions to the [gaps and islands](https://www.red-gate.com/simple-talk/databases/sql-server/t-sql-programming-sql-server/gaps-islands-sql-server-data/) problem.
 
-There are many ways this could be solved if the rows are fetched and processed outside of PostgreSQL.
-However, I specifically wanted to do this in pure SQL so that the operation could safely modify rows in a transaction, and avoid race conditions with concurrent processes.
+Note that you can avoid needing a solution like this if you are able to upgrade to PostgreSQL 14 and take advantage of [multirange](https://www.postgresql.org/docs/14/rangetypes.html) types. If not, read on!
 
-Unlike many of the more straightforward examples I found, my particular use case required the following.
+Requirements for my particular use case:
 - Find gaps and islands between rows containing a numerical range, expressed as two columns, `from_id` and `to_id`.
 - Merge the islands (rows of contiguous ranges) into a single row.
-- Update the table in-place with the merged islands.
+- Perform the merge and update the table in a single SQL transaction to avoid race conditions with concurrent processes.
 
 ## Solution
 
