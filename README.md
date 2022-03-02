@@ -1,4 +1,4 @@
-# Gaps and islands: Merging contiguous ranges
+# Gaps and islands: Merging contiguous ranges [<img align="right" alt="The blog of Peter Evans: Gaps and islands" title="View blog post" src="https://peterevans.dev/img/blog-published-badge.svg">](https://peterevans.dev/posts/gaps-and-islands-merging-contiguous-ranges/)
 
 I recently needed a solution to merge rows of contiguous ranges in a PostgreSQL table.
 The approach I took was based on solutions to the [gaps and islands](https://www.red-gate.com/simple-talk/databases/sql-server/t-sql-programming-sql-server/gaps-islands-sql-server-data/) problem.
